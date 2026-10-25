@@ -8,7 +8,7 @@
 
 Fills your details, picks the right security answer, requests the OTP, and (optionally) reads the OTP from your Gmail and logs you in.
 
-*An unofficial community project. Not affiliated with, endorsed by, or sponsored by IIT Kharagpur or Google.*
+*An unofficial project. Not affiliated with, endorsed by, or sponsored by IIT Kharagpur.*
 
 </div>
 
@@ -31,19 +31,22 @@ Fills your details, picks the right security answer, requests the OTP, and (opti
 
 ## Contents
 
-- [Videos](#videos)
-- [What it does](#what-it-does)
-- [Install](#install)
-  - [Chrome, Edge, Brave and other Chromium browsers](#chrome-edge-brave-and-other-chromium-browsers)
-  - [Firefox](#firefox)
-- [First-time setup](#first-time-setup)
-- [Optional: OTP from Gmail](#optional-otp-from-gmail)
-- [Troubleshooting](#troubleshooting)
-- [Privacy and security](#privacy-and-security)
-- [How it works](#how-it-works)
-- [Updating and uninstalling](#updating-and-uninstalling)
-- [Feedback and contributing](#feedback-and-contributing)
-- [License](#license)
+- [qERP](#qerp)
+  - [Videos](#videos)
+  - [Contents](#contents)
+  - [What it does](#what-it-does)
+  - [Install](#install)
+    - [Which download do I need?](#which-download-do-i-need)
+    - [Chrome, Edge, Brave and other Chromium browsers](#chrome-edge-brave-and-other-chromium-browsers)
+    - [Firefox](#firefox)
+  - [First-time setup](#first-time-setup)
+  - [Optional: OTP from Gmail](#optional-otp-from-gmail)
+  - [Troubleshooting](#troubleshooting)
+  - [Privacy and security](#privacy-and-security)
+  - [How it works](#how-it-works)
+  - [Updating and uninstalling](#updating-and-uninstalling)
+  - [Feedback and contributing](#feedback-and-contributing)
+  - [License](#license)
 
 ## What it does
 
@@ -65,11 +68,11 @@ qERP isn't in the Chrome Web Store or Firefox Add-ons, so you install it from th
 
 ### Which download do I need?
 
-| Your browser | Download from the [latest release](../../releases/latest) | Stays installed after restart? |
-|---|---|---|
-| Chrome, Edge, Brave, Opera, Vivaldi | `qerp-chrome-<version>.zip` | Yes |
-| Firefox (recommended) | `qerp-firefox-<version>.xpi` | Yes |
-| Firefox (if there's no `.xpi`) | `qerp-firefox-<version>.zip` | No, reload after each restart |
+| Your browser                        | Download from the [latest release](../../releases/latest) | Stays installed after restart? |
+| ----------------------------------- | --------------------------------------------------------- | ------------------------------ |
+| Chrome, Edge, Brave, Opera, Vivaldi | `qerp-chrome-<version>.zip`                               | Yes                            |
+| Firefox (recommended)               | `qerp-firefox-<version>.xpi`                              | Yes                            |
+| Firefox (if there's no `.xpi`)      | `qerp-firefox-<version>.zip`                              | No, reload after each restart  |
 
 You can also click **Code → Download ZIP** on this page. The two ready-to-use folders are `chrome/` and `firefox/`.
 
@@ -78,12 +81,12 @@ You can also click **Code → Download ZIP** on this page. The two ready-to-use 
 1. Download `qerp-chrome-<version>.zip` and **unzip it into a folder you'll keep**, such as `Documents/qerp`. The browser reads the extension from that folder every time it starts, so don't move or delete it.
 2. Open your browser's extensions page by pasting the address into the address bar:
 
-   | Browser | Address |
-   |---|---|
-   | Chrome | `chrome://extensions` |
-   | Edge | `edge://extensions` |
-   | Brave | `brave://extensions` |
-   | Opera | `opera://extensions` |
+   | Browser | Address                |
+   | ------- | ---------------------- |
+   | Chrome  | `chrome://extensions`  |
+   | Edge    | `edge://extensions`    |
+   | Brave   | `brave://extensions`   |
+   | Opera   | `opera://extensions`   |
    | Vivaldi | `vivaldi://extensions` |
 
 3. Turn on **Developer mode**. It's a switch at the top right in Chrome and Brave, and in the left sidebar in Edge.
@@ -144,17 +147,17 @@ Good to know:
 
 ## Troubleshooting
 
-| What you see | What to do |
-|---|---|
+| What you see                                   | What to do                                                                                                              |
+| ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | Nothing happens, or "Could not reach the page" | Reload the ERP tab and try again. On Firefox, check the site permission in `about:addons` → **qERP** → **Permissions**. |
-| "New question added…" | Expected. Type the answer next to it, click **Save**, then click **Log in to ERP** again. |
-| "The ERP says this User ID is invalid" | Check the User ID you saved. |
-| "ERP says: …" | The ERP rejected the request, usually a wrong password or security answer. Fix the saved value and try again. |
-| "Gmail access is off" | Tick **Auto-fill the OTP and log in** and allow the browser prompt. |
-| "Gmail returned no feed" | Sign in to Gmail in this browser, and check the account number in the URL you pasted. |
-| The countdown ends with no OTP | The OTP email may already have been opened, or it went to a different account. Type the OTP yourself. |
-| "No Gmail URL saved" | Paste your Gmail inbox URL into the Gmail section and press **Save**. |
-| It stopped working after the ERP changed | Please [open an issue](../../issues) with a short description. |
+| "New question added…"                          | Expected. Type the answer next to it, click **Save**, then click **Log in to ERP** again.                               |
+| "The ERP says this User ID is invalid"         | Check the User ID you saved.                                                                                            |
+| "ERP says: …"                                  | The ERP rejected the request, usually a wrong password or security answer. Fix the saved value and try again.           |
+| "Gmail access is off"                          | Tick **Auto-fill the OTP and log in** and allow the browser prompt.                                                     |
+| "Gmail returned no feed"                       | Sign in to Gmail in this browser, and check the account number in the URL you pasted.                                   |
+| The countdown ends with no OTP                 | The OTP email may already have been opened, or it went to a different account. Type the OTP yourself.                   |
+| "No Gmail URL saved"                           | Paste your Gmail inbox URL into the Gmail section and press **Save**.                                                   |
+| It stopped working after the ERP changed       | Please [open an issue](../../issues) with a short description.                                                          |
 
 ## Privacy and security
 
@@ -168,12 +171,12 @@ Full details: [PRIVACY.md](PRIVACY.md).
 
 ## How it works
 
-| File | Role |
-|---|---|
-| `content.js` | Runs on the ERP login page. Fills the form, picks the security answer, presses **Get OTP**, shows the countdown, and fills the OTP. |
-| `background.js` | Fetches your Gmail unread feed when asked. It returns only the OTP, an ID and a time for ERP OTP emails. |
-| `popup.html`, `popup.js`, `popup.css` | The settings window. |
-| `manifest.json` | The extension's definition. It differs slightly between `chrome/` and `firefox/`. |
+| File                                  | Role                                                                                                                                |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `content.js`                          | Runs on the ERP login page. Fills the form, picks the security answer, presses **Get OTP**, shows the countdown, and fills the OTP. |
+| `background.js`                       | Fetches your Gmail unread feed when asked. It returns only the OTP, an ID and a time for ERP OTP emails.                            |
+| `popup.html`, `popup.js`, `popup.css` | The settings window.                                                                                                                |
+| `manifest.json`                       | The extension's definition. It differs slightly between `chrome/` and `firefox/`.                                                   |
 
 The code is plain JavaScript with no build step and no dependencies, so you can read all of it.
 
