@@ -9,7 +9,7 @@ If you change any code, change it in both folders. They are identical except for
 Zip the folder contents, not the folder itself, so `manifest.json` sits at the top level of the zip.
 
 ```bash
-VERSION=1.8.0
+VERSION=1.8.1
 (cd chrome  && zip -r ../qerp-chrome-$VERSION.zip  .)
 (cd firefox && zip -r ../qerp-firefox-$VERSION.zip .)
 ```
@@ -30,7 +30,7 @@ Each new version needs a higher `version` number and another upload and signing.
 
 ## 4. Publish a GitHub release
 1. On the repo page, open **Releases → Draft a new release**.
-2. Create a tag such as `v1.8.0`.
+2. Create a tag such as `v1.8.1`.
 3. Attach `qerp-chrome-<version>.zip` and `qerp-firefox-<version>.xpi`. Attaching `qerp-firefox-<version>.zip` too is a good fallback for temporary installs.
 4. Publish. The README's "latest release" links now point to it.
 

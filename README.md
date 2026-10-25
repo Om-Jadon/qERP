@@ -19,11 +19,11 @@ Fills your details, picks the right security answer, requests the OTP, and (opti
 <table>
   <tr>
     <td align="center" width="50%">
-      <a href="https://www.youtube.com/watch?v=MAgz5d4sXpE"><img src="https://img.youtube.com/vi/MAgz5d4sXpE/hqdefault.jpg" alt="qERP video 1 on YouTube" width="380"></a>
+      <a href="https://youtu.be/MAgz5d4sXpE?si=Bcup-aNTwNOBJNWr"><img src="https://img.youtube.com/vi/MAgz5d4sXpE/hqdefault.jpg" alt="qERP Firefox video on YouTube" width="380"></a>
       <br><b>Firefox</b>
     </td>
     <td align="center" width="50%">
-      <a href="https://www.youtube.com/watch?v=xiT8c8M1OIw"><img src="https://img.youtube.com/vi/xiT8c8M1OIw/hqdefault.jpg" alt="qERP video 2 on YouTube" width="380"></a>
+      <a href="https://youtu.be/xiT8c8M1OIw?si=AAl249wMLxwM4Koi"><img src="https://img.youtube.com/vi/xiT8c8M1OIw/hqdefault.jpg" alt="qERP Chrome video on YouTube" width="380"></a>
       <br><b>Chrome</b>
     </td>
   </tr>
@@ -151,7 +151,7 @@ Good to know:
 | ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | Nothing happens, or "Could not reach the page" | Reload the ERP tab and try again. On Firefox, check the site permission in `about:addons` → **qERP** → **Permissions**. |
 | "New question added…"                          | Expected. Type the answer next to it, click **Save**, then click **Log in to ERP** again.                               |
-| "The ERP says this User ID is invalid"         | Check the User ID you saved.                                                                                            |
+| "The ERP didn't return a security question"    | Check the User ID you saved. The ERP only shows a question for a valid one.                                             |
 | "ERP says: …"                                  | The ERP rejected the request, usually a wrong password or security answer. Fix the saved value and try again.           |
 | "Gmail access is off"                          | Tick **Auto-fill the OTP and log in** and allow the browser prompt.                                                     |
 | "Gmail returned no feed"                       | Sign in to Gmail in this browser, and check the account number in the URL you pasted.                                   |

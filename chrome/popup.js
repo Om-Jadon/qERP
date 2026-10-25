@@ -84,6 +84,11 @@ async function openAndFill(tabId) {
 }
 
 async function fill() {
+  $('fill').disabled = true;                 // one run at a time: a second click would trigger another lookup
+  try { await fillInner(); } finally { $('fill').disabled = false; }
+}
+
+async function fillInner() {
   const c = await save();
   if (!c.userId || !c.password) return status('Enter your User ID and password first.', 'err');
 

@@ -45,7 +45,7 @@
   }
 
   // ---- the question text lives in <label id="question" for="answer"> ----
-  function questionText(answerEl) {
+  function questionEl(answerEl) {
     let label = null;
     if (answerEl.id) label = [...document.querySelectorAll('label')].find((l) => l.htmlFor === answerEl.id);
     if (!label) label = $id('question');
@@ -56,18 +56,12 @@
         label = [...node.querySelectorAll('label')].find((l) => !l.contains(answerEl));
       }
     }
-    return label ? label.textContent.trim() : '';
+    return label;
   }
-
-  async function waitForQuestion(answerEl, timeout = 10000) {
-    const t0 = Date.now();
-    while (Date.now() - t0 < timeout) {
-      const q = questionText(answerEl);
-      if (q && norm(q) !== DEFAULT_LABEL) return q;
-      await sleep(250);
-    }
-    return null;
-  }
+  const questionText = (answerEl) => {
+    const l = questionEl(answerEl);
+    return l ? l.textContent.trim() : '';
+  };
 
   function findAnswer(question, list) {
     const nq = norm(question);
@@ -82,23 +76,6 @@
     'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
     'X-Requested-With': 'XMLHttpRequest',
   };
-
-  // Question text, 'FALSE' for an unknown user ID, or null if the call failed.
-  async function fetchQuestion(userId) {
-    try {
-      const r = await fetch('/SSOAdministration/getSecurityQues.htm', {
-        method: 'POST',
-        credentials: 'include',
-        headers: FORM_HEADERS,
-        body: new URLSearchParams({ user_id: userId }),
-      });
-      const t = (await r.text()).trim();
-      if (t.includes('FALSE')) return 'FALSE';
-      return t && t.length < 300 && !t.includes('<') ? t : null;
-    } catch {
-      return null;
-    }
-  }
 
   // Fallback when the Get OTP button is missing: send what the page's own getEmailOTP() sends.
   async function requestOtpDirect() {
@@ -119,16 +96,40 @@
   }
 
   // ---- set a value so the page's own handlers (jQuery) notice it ----
-  function setValue(el, value) {
-    el.focus();
+  // No focus() calls on purpose: moving real focus would fire real blur events, and the page runs a
+  // security-question lookup on every User ID blur (the ERP hands out a NEW question per lookup).
+  function setValue(el, value, fireBlur = false) {
     try {
       Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(el, value);
     } catch {
       el.value = value;
     }
     for (const t of ['input', 'keyup', 'change']) el.dispatchEvent(new Event(t, { bubbles: true }));
-    el.dispatchEvent(new FocusEvent('blur'));
-    el.dispatchEvent(new FocusEvent('focusout', { bubbles: true }));
+    if (fireBlur) {
+      el.dispatchEvent(new FocusEvent('blur'));
+      el.dispatchEvent(new FocusEvent('focusout', { bubbles: true }));
+    }
+  }
+
+  // While we run, swallow REAL (user/browser) blur events on the User ID box so only our single
+  // synthetic blur reaches the page and triggers exactly one lookup.
+  function blockRealBlur(el) {
+    const h = (e) => { if (e.target === el && e.isTrusted) e.stopImmediatePropagation(); };
+    window.addEventListener('blur', h, true);
+    return () => window.removeEventListener('blur', h, true);
+  }
+
+  // Trigger the page's own (single) lookup and read its result from the label.
+  async function lookupQuestion(f, userId, timeout = 10000) {
+    const label = questionEl(f.answer);
+    if (label) label.textContent = 'Security Question';       // reset, so a fresh answer can't be mistaken for a stale one
+    setValue(f.user, userId, true);                            // ONE blur => the page does ONE lookup
+    const q = await waitFor(() => {
+      const t = questionText(f.answer);
+      return t && norm(t) !== DEFAULT_LABEL ? t : null;
+    }, timeout, 150);
+    if (q) await waitFor(() => !f.answer.readOnly, 3000);      // the page unlocks the answer box when it's done
+    return q;
   }
 
   // ---- the page shows a SweetAlert after Get OTP; read it, close it if it's a success ----
@@ -215,6 +216,13 @@
           if (hit) {
             setValue(f.otp, hit.otp);
             f.otp.focus();
+            const nowQ = questionText(f.answer);
+            if (session.question && norm(nowQ) !== norm(session.question)) {
+              const a2 = findAnswer(nowQ, session.qa);
+              if (a2) setValue(f.answer, a2);
+              banner(`The security question changed to "${nowQ}". OTP filled, but I did not log in. Check the answer and click Log In yourself.`, 'err', 20000);
+              return;
+            }
             banner('OTP filled. Logging in…', 'ok');
             await sleep(400);
             const btn = $id('loginFormSubmitButton');
@@ -239,7 +247,10 @@
     return { ok: true, question, waiting: true };
   }
 
-  async function run() {
+  // what the form currently holds, so the auto-login can double-check it right before Log In
+  const session = { question: '', qa: [] };
+
+  async function runCore() {
     const { creds, settings = {} } = await api.storage.local.get(['creds', 'settings']);
     if (!creds || !creds.userId || !creds.password) {
       return { ok: false, code: 'NO_CREDS', error: 'Save your User ID and password first.' };
@@ -256,26 +267,37 @@
           })
         : null;
 
-    setValue(f.user, creds.userId);        // the page's blur handler then loads the question
-    await sleep(200);
-    setValue(f.password, creds.password);
-
-    let question = await fetchQuestion(creds.userId);
-    if (question === 'FALSE') {
-      return { ok: false, code: 'BAD_ID', error: 'The ERP says this User ID is invalid. Check it in the extension.' };
+    const unblock = blockRealBlur(f.user);
+    try {
+      return await fillAndRequest(creds, settings, f, gmP);
+    } finally {
+      unblock();
     }
-    if (!question) question = await waitForQuestion(f.answer);
+  }
+
+  async function fillAndRequest(creds, settings, f, gmP) {
+    setValue(f.password, creds.password);                      // password first: the User ID blur below is the only lookup trigger
+
+    let question = await lookupQuestion(f, creds.userId);
     if (!question) {
-      return { ok: false, code: 'NO_Q', error: "The security question didn't load. Check that the User ID is correct." };
+      return { ok: false, code: 'NO_Q', error: "The ERP didn't return a security question. Check your User ID and try again." };
     }
-    const answer = findAnswer(question, creds.qa);
+    let answer = findAnswer(question, creds.qa);
     if (!answer) return { ok: false, code: 'UNKNOWN_Q', question, error: `No saved answer for: "${question}"` };
-
-    // the page keeps the answer box read-only until its own question lookup finishes
-    await waitFor(() => !f.answer.readOnly, 4000);
-    setValue(f.answer, answer);            // the 'input' event is what enables Get OTP
+    setValue(f.answer, answer);                                // the 'input' event is what enables Get OTP
 
     const gm = gmP ? await gmP : null;
+
+    // last check before the OTP goes out: is the label still the question we answered?
+    const now = questionText(f.answer);
+    if (norm(now) !== norm(question)) {
+      answer = findAnswer(now, creds.qa);
+      if (!answer) return { ok: false, code: 'UNKNOWN_Q', question: now, error: `No saved answer for: "${now}"` };
+      question = now;
+      setValue(f.answer, answer);
+    }
+    session.question = question;
+    session.qa = creds.qa;
 
     const btn = findOtpButton();
     if (!btn) {
@@ -297,6 +319,13 @@
 
     await sleep(400);
     return afterOtpSent(question, gm, settings, f, false);
+  }
+
+  // one run at a time: a second call (double click, popup retry) just gets the first run's result
+  let inFlight = null;
+  function run() {
+    if (!inFlight) inFlight = runCore().catch((e) => ({ ok: false, code: 'ERR', error: String(e) })).finally(() => { inFlight = null; });
+    return inFlight;
   }
 
   api.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
