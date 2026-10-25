@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>qERP</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header class="top">
+    <div class="title"><img src="icon32.png" alt=""><h1>qERP</h1><span class="sub">quick ERP login</span></div>
+    <button id="fill" class="primary">Log in to ERP</button>
+    <button id="save" class="secondary">Save</button>
+    <p id="status" role="status"></p>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>Login</h2>
+      <label>User ID
+        <input id="userId" autocomplete="off" spellcheck="false" placeholder="Roll no / employee code">
+      </label>
+      <label>Password
+        <span class="row">
+          <input id="password" type="password" autocomplete="new-password" spellcheck="false">
+          <button type="button" id="toggle" class="small">Show</button>
+        </span>
+      </label>
+    </section>
+
+    <section class="card">
+      <h2>Security questions &amp; answers</h2>
+      <p class="hint">Type each question as the ERP shows it (case and punctuation don't matter).</p>
+      <div class="qa"><input id="q0" placeholder="Question 1"><input id="a0" placeholder="Answer 1" autocomplete="off"></div>
+      <div class="qa"><input id="q1" placeholder="Question 2"><input id="a1" placeholder="Answer 2" autocomplete="off"></div>
+      <div class="qa"><input id="q2" placeholder="Question 3"><input id="a2" placeholder="Answer 3" autocomplete="off"></div>
+    </section>
+
+    <details class="card" id="gmailBox">
+      <summary>OTP from Gmail (optional)</summary>
+      <label>Gmail inbox URL
+        <input id="gmailUrl" spellcheck="false" placeholder="https://mail.google.com/mail/u/0/#inbox">
+      </label>
+      <p class="hint">Open Gmail in the account that receives the ERP OTP and paste its address-bar URL. The <code>/u/0/</code> part tells the extension which account to read.</p>
+      <p id="acctInfo" class="hint"></p>
+      <label class="chk"><input type="checkbox" id="autoOtp"> Auto-fill the OTP and log in</label>
+      <p class="hint">Asks the browser for Gmail access only when you tick this; unticking removes it. After sending the OTP it watches Gmail's unread-mail feed for 1 minute (no Gmail tab needed), keeps only the ERP OTP email, and sends nothing anywhere else.</p>
+      <button type="button" id="test" class="secondary test">Test Gmail feed</button>
+    </details>
+
+    <p class="hint foot">Stored only in this browser's extension storage, unencrypted.<br>Unofficial tool, not affiliated with IIT Kharagpur.</p>
+  </main>
+
+  <script src="popup.js"></script>
+</body>
+</html>
